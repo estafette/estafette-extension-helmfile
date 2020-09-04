@@ -1,0 +1,14 @@
+controller:
+  metrics:
+    enabled: true
+  kind: DaemonSet
+  hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
+  hostPort:
+    enabled: true
+  service:
+    enabled: false
+  admissionWebhooks:
+    enabled: false
+  publishService:
+    enabled: false
