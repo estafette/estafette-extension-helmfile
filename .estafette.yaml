@@ -79,6 +79,11 @@ stages:
 
   test-diff:
     image: extensions/helmfile:${ESTAFETTE_BUILD_VERSION}
+    action: lint
+    file: test-helmfile.yaml
+      
+  test-diff:
+    image: extensions/helmfile:${ESTAFETTE_BUILD_VERSION}
     action: diff
     file: test-helmfile.yaml
 

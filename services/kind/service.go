@@ -14,8 +14,8 @@ import (
 )
 
 type Service interface {
-	WaitForReadiness() (err error)
-	PrepareKubeConfig() (err error)
+	WaitForReadiness(ctx context.Context) (err error)
+	PrepareKubeConfig(ctx context.Context) (err error)
 }
 
 // NewService returns a new orchestrator.Service
@@ -33,7 +33,7 @@ type service struct {
 	kindHost string
 }
 
-func (s *service) WaitForReadiness() (err error) {
+func (s *service) WaitForReadiness(ctx context.Context) (err error) {
 	log.Info().Msg("Waiting for kind host to be ready...")
 	httpClient := &http.Client{
 		Timeout: time.Second * 1,
@@ -51,7 +51,7 @@ func (s *service) WaitForReadiness() (err error) {
 	return nil
 }
 
-func (s *service) PrepareKubeConfig() (err error) {
+func (s *service) PrepareKubeConfig(ctx context.Context) (err error) {
 
 	log.Info().Msg("Preparing kind host for using Helm...")
 	httpClient := &http.Client{
