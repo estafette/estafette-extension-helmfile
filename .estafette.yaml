@@ -69,7 +69,7 @@ stages:
     - extensions
     path: ./publish
 
-  test-helmfile-common-profile:
+  run-kind:
     services:
     - name: kubernetes
       image: bsycorp/kind:latest-1.17
@@ -77,6 +77,12 @@ stages:
         path: /kubernetes-ready
         port: 10080
 
+  test-diff:
+    image: extensions/helmfile:${ESTAFETTE_BUILD_VERSION}
+    action: diff
+    file: test-helmfile.yaml
+
+  test-apply:
     image: extensions/helmfile:${ESTAFETTE_BUILD_VERSION}
     action: apply
     file: test-helmfile.yaml
