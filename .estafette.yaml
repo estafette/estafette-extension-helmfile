@@ -77,7 +77,7 @@ stages:
         path: /kubernetes-ready
         port: 10080
 
-  test-diff:
+  test-lint:
     image: extensions/helmfile:${ESTAFETTE_BUILD_VERSION}
     action: lint
     file: test-helmfile.yaml
