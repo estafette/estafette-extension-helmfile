@@ -1,4 +1,4 @@
-package main
+package extension
 
 type Action string
 

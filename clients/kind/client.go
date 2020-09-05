@@ -13,34 +13,34 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type Service interface {
+type Client interface {
 	WaitForReadiness(ctx context.Context) (err error)
 	PrepareKubeConfig(ctx context.Context) (err error)
 }
 
-// NewService returns a new orchestrator.Service
-func NewService(ctx context.Context, kindHost string) (Service, error) {
+// NewClient returns a new kind.Client
+func NewClient(ctx context.Context, kindHost string) (Client, error) {
 	if kindHost == "" {
 		return nil, fmt.Errorf("kindHost is empty, this is now allowed")
 	}
 
-	return &service{
+	return &client{
 		kindHost: kindHost,
 	}, nil
 }
 
-type service struct {
+type client struct {
 	kindHost string
 }
 
-func (s *service) WaitForReadiness(ctx context.Context) (err error) {
+func (c *client) WaitForReadiness(ctx context.Context) (err error) {
 	log.Info().Msg("Waiting for kind host to be ready...")
 	httpClient := &http.Client{
 		Timeout: time.Second * 1,
 	}
 
 	for true {
-		_, err := httpClient.Get(fmt.Sprintf("http://%v:10080/kubernetes-ready", s.kindHost))
+		_, err := httpClient.Get(fmt.Sprintf("http://%v:10080/kubernetes-ready", c.kindHost))
 		if err == nil {
 			break
 		} else {
@@ -51,13 +51,13 @@ func (s *service) WaitForReadiness(ctx context.Context) (err error) {
 	return nil
 }
 
-func (s *service) PrepareKubeConfig(ctx context.Context) (err error) {
+func (c *client) PrepareKubeConfig(ctx context.Context) (err error) {
 
 	log.Info().Msg("Preparing kind host for using Helm...")
 	httpClient := &http.Client{
 		Timeout: time.Second * 1,
 	}
-	response, err := httpClient.Get(fmt.Sprintf("http://%v:10080/config", s.kindHost))
+	response, err := httpClient.Get(fmt.Sprintf("http://%v:10080/config", c.kindHost))
 	if err != nil {
 		return
 	}
@@ -69,7 +69,7 @@ func (s *service) PrepareKubeConfig(ctx context.Context) (err error) {
 	if err != nil {
 		return
 	}
-	kubeConfig := strings.ReplaceAll(string(body), "localhost", s.kindHost)
+	kubeConfig := strings.ReplaceAll(string(body), "localhost", c.kindHost)
 
 	usr, _ := user.Current()
 	homeDir := usr.HomeDir

@@ -6,8 +6,9 @@ import (
 
 	"github.com/alecthomas/kingpin"
 	"github.com/estafette/estafette-extension-helmfile/clients/credentials"
-	"github.com/estafette/estafette-extension-helmfile/services/helmfile"
-	"github.com/estafette/estafette-extension-helmfile/services/kind"
+	"github.com/estafette/estafette-extension-helmfile/clients/helmfile"
+	"github.com/estafette/estafette-extension-helmfile/clients/kind"
+	"github.com/estafette/estafette-extension-helmfile/services/extension"
 	foundation "github.com/estafette/estafette-foundation"
 	"github.com/rs/zerolog/log"
 )
@@ -23,7 +24,7 @@ var (
 )
 
 var (
-	action                    = kingpin.Flag("action", ".").Envar("ESTAFETTE_EXTENSION_ACTION").Enum(string(ActionLint), string(ActionApply), string(ActionDiff))
+	action                    = kingpin.Flag("action", ".").Envar("ESTAFETTE_EXTENSION_ACTION").Enum(string(extension.ActionLint), string(extension.ActionApply), string(extension.ActionDiff))
 	infraCredentialsJSON      = kingpin.Flag("gcp-infra-credentials", "GCP infra credentials configured at service level, passed in to this trusted extension.").Envar("ESTAFETTE_CREDENTIALS_GCP_INFRA").Required().String()
 	serviceAccountKeyfilePath = kingpin.Flag("service-account-keyfile-path", "Path to store the service account keyfile.").Envar("GOOGLE_APPLICATION_CREDENTIALS").Required().String()
 	kindHost                  = kingpin.Flag("kind-host", "Hostname of kind container.").Default("kubernetes").OverrideDefaultFromEnvar("ESTAFETTE_EXTENSION_KIND_HOST").String()
@@ -41,42 +42,29 @@ func main() {
 	// create context to cancel commands on sigterm
 	ctx := foundation.InitCancellationContext(context.Background())
 
-	// extract service account keyfile from injected credentials
 	credentialsClient, err := credentials.NewClient(ctx, *infraCredentialsJSON, *serviceAccountKeyfilePath)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed creating credentials.Client")
 	}
 
-	kindService, err := kind.NewService(ctx, *kindHost)
+	kindClient, err := kind.NewClient(ctx, *kindHost)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed creating kind.Service")
+		log.Fatal().Err(err).Msg("Failed creating kind.Client")
 	}
 
-	helmfileService, err := helmfile.NewService(ctx, credentialsClient, kindService, *file)
+	helmfileClient, err := helmfile.NewClient(ctx, *file)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed creating helmfile.Service")
+		log.Fatal().Err(err).Msg("Failed creating helmfile.Client")
 	}
 
-	switch *action {
-	case string(ActionLint):
-		err = helmfileService.Lint(ctx)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Failed linting helmfile")
-		}
+	extensionService, err := extension.NewService(ctx, credentialsClient, kindClient, helmfileClient)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed creating extension.Service")
+	}
 
-	case string(ActionDiff):
-		err = helmfileService.Diff(ctx)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Failed diffing helmfile")
-		}
-
-	case string(ActionApply):
-		err = helmfileService.Apply(ctx)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Failed applying helmfile")
-		}
-
-	default:
-		log.Fatal().Msgf("action %v is not supported", *action)
+	// do the actual work
+	err = extensionService.ExecuteAction(ctx, extension.Action(*action))
+	if err != nil {
+		log.Fatal().Err(err).Msgf("Failed executing action %v", *action)
 	}
 }
