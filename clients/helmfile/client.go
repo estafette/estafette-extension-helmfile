@@ -19,11 +19,12 @@ func NewClient(ctx context.Context, file, logLevel string) (Client, error) {
 		return nil, fmt.Errorf("file is empty, this is now allowed")
 	}
 	if logLevel == "" {
-		logLevel = "info"
+		return nil, fmt.Errorf("logLevel is empty, this is now allowed")
 	}
 
 	return &client{
-		file: file,
+		file:     file,
+		logLevel: logLevel,
 	}, nil
 }
 
