@@ -14,9 +14,12 @@ type Client interface {
 }
 
 // NewClient returns a new helmfile.Client
-func NewClient(ctx context.Context, file string) (Client, error) {
+func NewClient(ctx context.Context, file, logLevel string) (Client, error) {
 	if file == "" {
 		return nil, fmt.Errorf("file is empty, this is now allowed")
+	}
+	if logLevel == "" {
+		logLevel = "info"
 	}
 
 	return &client{
@@ -25,17 +28,18 @@ func NewClient(ctx context.Context, file string) (Client, error) {
 }
 
 type client struct {
-	file string
+	file     string
+	logLevel string
 }
 
 func (c *client) Lint(ctx context.Context) (err error) {
-	return foundation.RunCommandExtended(ctx, "helmfile --file %v lint", c.file)
+	return foundation.RunCommandExtended(ctx, "helmfile --file %v --log-level %v lint", c.file, c.logLevel)
 }
 
 func (c *client) Diff(ctx context.Context) (err error) {
-	return foundation.RunCommandExtended(ctx, "helmfile --file %v diff", c.file)
+	return foundation.RunCommandExtended(ctx, "helmfile --file %v --log-level %v diff", c.file, c.logLevel)
 }
 
 func (c *client) Apply(ctx context.Context) (err error) {
-	return foundation.RunCommandExtended(ctx, "helmfile --file %v apply", c.file)
+	return foundation.RunCommandExtended(ctx, "helmfile --file %v --log-level %v apply", c.file, c.logLevel)
 }

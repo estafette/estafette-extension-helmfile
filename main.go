@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"runtime"
+	"strings"
 
 	"github.com/alecthomas/kingpin"
 	"github.com/estafette/estafette-extension-helmfile/clients/credentials"
@@ -29,6 +30,7 @@ var (
 	serviceAccountKeyfilePath = kingpin.Flag("service-account-keyfile-path", "Path to store the service account keyfile.").Envar("GOOGLE_APPLICATION_CREDENTIALS").Required().String()
 	kindHost                  = kingpin.Flag("kind-host", "Hostname of kind container.").Default("kubernetes").OverrideDefaultFromEnvar("ESTAFETTE_EXTENSION_KIND_HOST").String()
 	file                      = kingpin.Flag("file", "Yaml file to be used by helmfile.").Default("helmfile.yaml").OverrideDefaultFromEnvar("ESTAFETTE_EXTENSION_FILE").String()
+	logLevel                  = kingpin.Flag("log-level", "The minimum level to output as logs").Default("info").OverrideDefaultFromEnvar("ESTAFETTE_LOG_LEVEL").String()
 )
 
 func main() {
@@ -52,7 +54,7 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed creating kind.Client")
 	}
 
-	helmfileClient, err := helmfile.NewClient(ctx, *file)
+	helmfileClient, err := helmfile.NewClient(ctx, *file, strings.ToLower(*logLevel))
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed creating helmfile.Client")
 	}
