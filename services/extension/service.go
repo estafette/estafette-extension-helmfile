@@ -59,7 +59,7 @@ func (s *service) ExecuteAction(ctx context.Context, action Action) (err error) 
 }
 
 func (s *service) Lint(ctx context.Context) (err error) {
-	err = s.Init(ctx)
+	err = s.initCredentials(ctx)
 	if err != nil {
 		return
 	}
@@ -85,13 +85,17 @@ func (s *service) Apply(ctx context.Context) (err error) {
 	return s.helmfileClient.Apply(ctx)
 }
 
-func (s *service) Init(ctx context.Context) (err error) {
+func (s *service) initCredentials(ctx context.Context) (err error) {
 	// extract credentials and write to location set in envvar GOOGLE_APPLICATION_CREDENTIALS
 	err = s.credentialsClient.Init(ctx)
 	if err != nil {
 		return
 	}
 
+	return nil
+}
+
+func (s *service) initKindHost(ctx context.Context) (err error) {
 	// wait for kind host to be ready
 	err = s.kindClient.WaitForReadiness(ctx)
 	if err != nil {
@@ -100,6 +104,20 @@ func (s *service) Init(ctx context.Context) (err error) {
 
 	// configure .kube/config for using kind host
 	err = s.kindClient.PrepareKubeConfig(ctx)
+	if err != nil {
+		return
+	}
+
+	return nil
+}
+
+func (s *service) Init(ctx context.Context) (err error) {
+	err = s.initCredentials(ctx)
+	if err != nil {
+		return
+	}
+
+	err = s.initKindHost(ctx)
 	if err != nil {
 		return
 	}
