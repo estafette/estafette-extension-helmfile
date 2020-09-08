@@ -3,7 +3,7 @@
 
 ## Introduction
 
-In order to install or update multiple Helm charts at once, the [helmfile](https://github.com/roboll/helmfile) tool can be used. This extension makes it easy to test _helmfile_ manifests before merging and applying them.
+In order to install or update multiple Helm charts at once, [helmfile](https://github.com/roboll/helmfile) is a very powerful tool. This [Estafette CI](https://estafette.io) extension makes it easy to test _helmfile_ manifests ahead of applying them through a GitOps approach.
 
 ## Usage
 
@@ -38,7 +38,7 @@ To check the diff of the _helmfile_ manifest against an in-pipeline _kind_ conta
 
 ### Diff
 
-To applythe _helmfile_ manifest against an in-pipeline _kind_ container add:
+To apply the _helmfile_ manifest against an in-pipeline _kind_ container add:
 
 ```yaml
   lint:
