@@ -53,7 +53,7 @@ stages:
           && helm plugin install https://github.com/databus23/helm-diff --version ${HELM_DIFF_VERSION} \
           && helm plugin install https://github.com/hayorov/helm-gcs --version ${HELM_GCS_VERSION} \
           && helm plugin list \
-          && curl -L https://github.com/roboll/helmfile/releases/download/${HELMFILE_VERSION}/helmfile_linux_amd64 -O /usr/bin/helmfile \
+          && curl -L https://github.com/roboll/helmfile/releases/download/${HELMFILE_VERSION}/helmfile_linux_amd64 -o /usr/bin/helmfile \
           && chmod +x /usr/bin/helmfile \
           && apk del curl \
           && rm -f /var/cache/apk/*
