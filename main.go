@@ -31,6 +31,11 @@ var (
 	kindHost                  = kingpin.Flag("kind-host", "Hostname of kind container.").Default("kubernetes").OverrideDefaultFromEnvar("ESTAFETTE_EXTENSION_KIND_HOST").String()
 	file                      = kingpin.Flag("file", "Yaml file to be used by helmfile.").Default("helmfile.yaml").OverrideDefaultFromEnvar("ESTAFETTE_EXTENSION_FILE").String()
 	logLevel                  = kingpin.Flag("log-level", "The minimum level to output as logs").Default("info").OverrideDefaultFromEnvar("ESTAFETTE_LOG_LEVEL").String()
+
+	helmVersion     = kingpin.Flag("helm-version", "The version of Helm").Envar("HELM_VERSION").Required().String()
+	helmDiffVersion = kingpin.Flag("helm-diff-version", "The version of Helm Diff plugin").Envar("HELM_DIFF_VERSION").Required().String()
+	helmGCSVersion  = kingpin.Flag("helm-gcs-version", "The version of Helm Diff plugin").Envar("HELM_GCS_VERSION").Required().String()
+	helmfileVersion = kingpin.Flag("helmfile-version", "The version of Helmfile").Envar("HELMFILE_VERSION").Required().String()
 )
 
 func main() {
@@ -40,6 +45,9 @@ func main() {
 
 	// init log format from envvar ESTAFETTE_LOG_FORMAT
 	foundation.InitLoggingFromEnv(foundation.NewApplicationInfo(appgroup, app, version, branch, revision, buildDate))
+
+	// log versions of used binaries
+	log.Info().Str("helm", *helmVersion).Str("helm-diff", *helmDiffVersion).Str("helm-gcs", *helmGCSVersion).Str("helmfile", *helmfileVersion).Msg("")
 
 	// create context to cancel commands on sigterm
 	ctx := foundation.InitCancellationContext(context.Background())
