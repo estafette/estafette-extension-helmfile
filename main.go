@@ -32,7 +32,7 @@ var (
 	file                      = kingpin.Flag("file", "Yaml file to be used by helmfile.").Default("helmfile.yaml").OverrideDefaultFromEnvar("ESTAFETTE_EXTENSION_FILE").String()
 	logLevel                  = kingpin.Flag("log-level", "The minimum level to output as logs").Default("info").OverrideDefaultFromEnvar("ESTAFETTE_LOG_LEVEL").String()
 
-	helmVersion     = kingpin.Flag("helm-version", "The version of Helm").Envar("HELM_VERSION").String()
+	helmVersion     = kingpin.Flag("helm-version", "The version of Helm").Envar("HELM_VERSION").Required().String()
 	helmDiffVersion = kingpin.Flag("helm-diff-version", "The version of Helm Diff plugin").Envar("HELM_DIFF_VERSION").Required().String()
 	helmGCSVersion  = kingpin.Flag("helm-gcs-version", "The version of Helm Diff plugin").Envar("HELM_GCS_VERSION").Required().String()
 	helmfileVersion = kingpin.Flag("helmfile-version", "The version of Helmfile").Envar("HELMFILE_VERSION").Required().String()
@@ -51,10 +51,6 @@ func main() {
 
 	// create context to cancel commands on sigterm
 	ctx := foundation.InitCancellationContext(context.Background())
-
-	foundation.RunCommand(ctx, "helm version")
-	foundation.RunCommand(ctx, "helm plugin list")
-	foundation.RunCommand(ctx, "helmfile version")
 
 	credentialsClient, err := credentials.NewClient(ctx, *infraCredentialsJSON, *serviceAccountKeyfilePath)
 	if err != nil {
