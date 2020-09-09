@@ -28,6 +28,7 @@ stages:
     container: helmfile
     dontExpand:
     - PATH
+    - HELM_VERSION
     inline: |
       ARG HELM_VERSION=3.3.1
 
