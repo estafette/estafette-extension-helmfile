@@ -47,7 +47,7 @@ func main() {
 	foundation.InitLoggingFromEnv(foundation.NewApplicationInfo(appgroup, app, version, branch, revision, buildDate))
 
 	// log versions of used binaries
-	log.Info().Str("helm", *helmVersion).Str("helm-diff", *helmDiffVersion).Str("helm-gcs", *helmGCSVersion).Str("helmfile", *helmfileVersion).Msg("")
+	log.Info().Str("helm", *helmVersion).Str("helm-diff", *helmDiffVersion).Str("helm-gcs", *helmGCSVersion).Str("helmfile", *helmfileVersion).Msg("Installed tools...")
 
 	// create context to cancel commands on sigterm
 	ctx := foundation.InitCancellationContext(context.Background())
