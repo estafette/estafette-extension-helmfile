@@ -67,6 +67,11 @@ stages:
           ESTAFETTE_LOG_LEVEL="info" \
           GOOGLE_APPLICATION_CREDENTIALS="/gcp-service-account/service-account-key.json"
 
+      RUN echo "helm: ${HELM_VERSION}"
+      RUN echo "helm-diff: ${HELM_DIFF_VERSION}"
+      RUN echo "helm-gcs: ${HELM_GCS_VERSION}"
+      RUN echo "helmfile: ${HELMFILE_VERSION}"
+
       ENTRYPOINT ["/${ESTAFETTE_GIT_NAME}"]
     repositories:
     - extensions

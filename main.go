@@ -28,9 +28,9 @@ var (
 	action                    = kingpin.Flag("action", ".").Envar("ESTAFETTE_EXTENSION_ACTION").Enum(extension.AllowedActions()...)
 	infraCredentialsJSON      = kingpin.Flag("gcp-infra-credentials", "GCP infra credentials configured at service level, passed in to this trusted extension.").Envar("ESTAFETTE_CREDENTIALS_GCP_INFRA").Required().String()
 	serviceAccountKeyfilePath = kingpin.Flag("service-account-keyfile-path", "Path to store the service account keyfile.").Envar("GOOGLE_APPLICATION_CREDENTIALS").Required().String()
-	kindHost                  = kingpin.Flag("kind-host", "Hostname of kind container.").Default("kubernetes").OverrideDefaultFromEnvar("ESTAFETTE_EXTENSION_KIND_HOST").String()
-	file                      = kingpin.Flag("file", "Yaml file to be used by helmfile.").Default("helmfile.yaml").OverrideDefaultFromEnvar("ESTAFETTE_EXTENSION_FILE").String()
-	logLevel                  = kingpin.Flag("log-level", "The minimum level to output as logs").Default("info").OverrideDefaultFromEnvar("ESTAFETTE_LOG_LEVEL").String()
+	kindHost                  = kingpin.Flag("kind-host", "Hostname of kind container.").Default("kubernetes").Envar("ESTAFETTE_EXTENSION_KIND_HOST").String()
+	file                      = kingpin.Flag("file", "Yaml file to be used by helmfile.").Default("helmfile.yaml").Envar("ESTAFETTE_EXTENSION_FILE").String()
+	logLevel                  = kingpin.Flag("log-level", "The minimum level to output as logs").Default("info").Envar("ESTAFETTE_LOG_LEVEL").String()
 
 	helmVersion     = kingpin.Flag("helm-version", "The version of Helm").Envar("HELM_VERSION").Required().String()
 	helmDiffVersion = kingpin.Flag("helm-diff-version", "The version of Helm Diff plugin").Envar("HELM_DIFF_VERSION").Required().String()
