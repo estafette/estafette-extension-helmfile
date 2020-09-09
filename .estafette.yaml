@@ -41,21 +41,23 @@ stages:
 
       RUN apk add --update --upgrade  --no-cache \
             git \
-            bash \
             openssl \
             curl \
             ca-certificates \
+          # install helm
           && curl -L https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz | tar xvz \
           && mv linux-amd64/helm /usr/bin/helm \
           && chmod +x /usr/bin/helm \
           && rm -rf linux-amd64 \
-          && mkdir -p ~/.kube ~/.helm/plugins \
+          # install helm plugins
           && helm plugin install https://github.com/databus23/helm-diff --version ${HELM_DIFF_VERSION} \
           && helm plugin install https://github.com/hayorov/helm-gcs --version ${HELM_GCS_VERSION} \
           && helm plugin list \
+          # install helmfile
           && curl -L https://github.com/roboll/helmfile/releases/download/${HELMFILE_VERSION}/helmfile_linux_amd64 -o /usr/bin/helmfile \
           && chmod +x /usr/bin/helmfile \
-          && apk del curl \
+          # cleanup
+          && apk del curl git openssl \
           && rm -f /var/cache/apk/*
 
       COPY ${ESTAFETTE_GIT_NAME} /
