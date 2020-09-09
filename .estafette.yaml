@@ -56,7 +56,8 @@ stages:
           # install helmfile
           && curl -L https://github.com/roboll/helmfile/releases/download/${HELMFILE_VERSION}/helmfile_linux_amd64 -o /usr/bin/helmfile \
           && chmod +x /usr/bin/helmfile \
-          # cleanup
+          # misc
+          && mkdir -p ~/.kube \
           && apk del curl git openssl \
           && rm -f /var/cache/apk/*
 
