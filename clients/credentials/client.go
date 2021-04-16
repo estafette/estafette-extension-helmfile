@@ -7,7 +7,9 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 
+	foundation "github.com/estafette/estafette-foundation"
 	"github.com/rs/zerolog/log"
 )
 
@@ -15,22 +17,22 @@ type Client interface {
 	Init(ctx context.Context) (err error)
 }
 
-func NewClient(ctx context.Context, infraCredentialsJSON, serviceAccountKeyfilePath string) (Client, error) {
-	if infraCredentialsJSON == "" {
-		return nil, fmt.Errorf("infraCredentialsJSON, this is now allowed")
+func NewClient(ctx context.Context, credentialsPath, serviceAccountKeyfilePath string) (Client, error) {
+	if credentialsPath == "" {
+		return nil, fmt.Errorf("credentialsPath, this is now allowed")
 	}
 	if serviceAccountKeyfilePath == "" {
 		return nil, fmt.Errorf("serviceAccountKeyfilePath, this is now allowed")
 	}
 
 	return &client{
-		infraCredentialsJSON:      infraCredentialsJSON,
+		credentialsPath:           credentialsPath,
 		serviceAccountKeyfilePath: serviceAccountKeyfilePath,
 	}, nil
 }
 
 type client struct {
-	infraCredentialsJSON      string
+	credentialsPath           string
 	serviceAccountKeyfilePath string
 }
 
@@ -39,7 +41,7 @@ func (c *client) Init(ctx context.Context) (err error) {
 	log.Info().Msg("Initializing credentials...")
 
 	// read injected gke-update credentials
-	serviceAccountKeyfile, err := c.getServiceAccountKeyfile(ctx, c.infraCredentialsJSON)
+	serviceAccountKeyfile, err := c.getServiceAccountKeyfile(ctx, c.credentialsPath)
 	if err != nil {
 		return err
 	}
@@ -52,15 +54,29 @@ func (c *client) Init(ctx context.Context) (err error) {
 	return nil
 }
 
-func (c *client) getServiceAccountKeyfile(ctx context.Context, infraCredentialsJSON string) (string, error) {
+func (c *client) getServiceAccountKeyfile(ctx context.Context, credentialsPath string) (string, error) {
 	log.Debug().Msg("Unmarshalling injected gcp-infra credentials...")
 
-	var gcpInfraCredentials []GCPInfraCredentials
-	if err := json.Unmarshal([]byte(infraCredentialsJSON), &gcpInfraCredentials); err != nil {
-		return "", err
+	// use mounted credential file if present instead of relying on an envvar
+	if runtime.GOOS == "windows" {
+		credentialsPath = "C:" + credentialsPath
 	}
-	if len(gcpInfraCredentials) == 0 {
-		return "", fmt.Errorf("No gcp-infra credentials injected")
+	var gcpInfraCredentials []GCPInfraCredentials
+	if foundation.FileExists(credentialsPath) {
+		log.Info().Msgf("Reading credentials from file at path %v...", credentialsPath)
+		credentialsFileContent, err := ioutil.ReadFile(credentialsPath)
+		if err != nil {
+			return "", err
+		}
+		var gcpInfraCredentials []GCPInfraCredentials
+		if err := json.Unmarshal([]byte(credentialsFileContent), &gcpInfraCredentials); err != nil {
+			return "", err
+		}
+		if len(gcpInfraCredentials) == 0 {
+			return "", fmt.Errorf("No gcp-infra credentials injected")
+		}
+	} else {
+		return "", fmt.Errorf("Credentials of type kubernetes-engine are not injected; configure this extension as trusted and inject credentials of type kubernetes-engine")
 	}
 
 	return gcpInfraCredentials[0].AdditionalProperties.ServiceAccountKeyfile, nil
