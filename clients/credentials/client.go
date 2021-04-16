@@ -68,13 +68,13 @@ func (c *client) getServiceAccountKeyfile(ctx context.Context, credentialsPath s
 		if err != nil {
 			return "", err
 		}
-		var gcpInfraCredentials []GCPInfraCredentials
 		if err := json.Unmarshal([]byte(credentialsFileContent), &gcpInfraCredentials); err != nil {
 			return "", err
 		}
 		if len(gcpInfraCredentials) == 0 {
 			return "", fmt.Errorf("No gcp-infra credentials injected")
 		}
+		log.Info().Msgf("Read %v credentials", len(gcpInfraCredentials))
 	} else {
 		return "", fmt.Errorf("Credentials of type gcp-infra are not injected; configure this extension as trusted and inject credentials of type gcp-infra")
 	}
