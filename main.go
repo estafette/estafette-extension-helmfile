@@ -26,7 +26,7 @@ var (
 
 var (
 	action                    = kingpin.Flag("action", ".").Envar("ESTAFETTE_EXTENSION_ACTION").Enum(extension.AllowedActions()...)
-	credentialsPath           = kingpin.Flag("credentials-path", "Path to file with GKE credentials configured at service level, passed in to this trusted extension.").Default("/credentials/gcp_infra.json").String()
+	credentialsPath           = kingpin.Flag("credentials-path", "Path to file with GCP infra credentials configured at service level, passed in to this trusted extension.").Default("/credentials/gcp_infra.json").String()
 	serviceAccountKeyfilePath = kingpin.Flag("service-account-keyfile-path", "Path to store the service account keyfile.").Envar("GOOGLE_APPLICATION_CREDENTIALS").Required().String()
 	kindHost                  = kingpin.Flag("kind-host", "Hostname of kind container.").Default("kubernetes").OverrideDefaultFromEnvar("ESTAFETTE_EXTENSION_KIND_HOST").String()
 	file                      = kingpin.Flag("file", "Yaml file to be used by helmfile.").Default("helmfile.yaml").OverrideDefaultFromEnvar("ESTAFETTE_EXTENSION_FILE").String()

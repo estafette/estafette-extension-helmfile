@@ -76,7 +76,7 @@ func (c *client) getServiceAccountKeyfile(ctx context.Context, credentialsPath s
 			return "", fmt.Errorf("No gcp-infra credentials injected")
 		}
 	} else {
-		return "", fmt.Errorf("Credentials of type kubernetes-engine are not injected; configure this extension as trusted and inject credentials of type kubernetes-engine")
+		return "", fmt.Errorf("Credentials of type gcp-infra are not injected; configure this extension as trusted and inject credentials of type gcp-infra")
 	}
 
 	return gcpInfraCredentials[0].AdditionalProperties.ServiceAccountKeyfile, nil
