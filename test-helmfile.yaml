@@ -4,8 +4,6 @@ helmDefaults:
   timeout: 120
 
 repositories:
-- name: stable
-  url: https://kubernetes-charts.storage.googleapis.com
 - name: ingress-nginx
   url: https://kubernetes.github.io/ingress-nginx
 
